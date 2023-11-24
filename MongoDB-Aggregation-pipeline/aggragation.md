@@ -12,8 +12,6 @@
   - [Accumulator(group) operator -$max, $min, $avg](#accumulatorgroup-operator-max-min-avg)
 - [$unwind](#unwind)
 - [$bucket, $sort, and $limit](#bucket-sort-and-limit)
-  - [Breakdown of the above code](#breakdown-of-the-above-code)
-  - [another example of $bucket](#another-example-of-bucket)
 - [$facet, multiple pipeline aggregation stage](#facet-multiple-pipeline-aggregation-stage)
 - [embedding vs referencing](#embedding-vs-referencing)
 - [$lookup for referencing](#lookup-for-referencing)
