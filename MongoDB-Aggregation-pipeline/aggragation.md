@@ -42,6 +42,7 @@ db.getCollection("orders").aggregate([
 ```
 
 **output**
+
 ![Alt text](image.png)
 
 ## Calculate Total Order Value and Average Order Quantity
@@ -82,6 +83,7 @@ db.getCollection("orders")[
 ```
 
 **output**
+
 ![Alt text](image-1.png)
 
 ## $project
@@ -99,6 +101,7 @@ db.getCollection("test").aggregate([
 ```
 
 **output**
+
 ![Alt text](image-2.png)
 
 ### $addField
@@ -130,6 +133,7 @@ db.getCollection("test").aggregate([
 ```
 
 **output**
+
 ![Alt text](image-3.png)
 
 ### $out and $merge
@@ -167,6 +171,7 @@ db.getCollection("test").aggregate([
 ```
 
 **output**
+
 ![Alt text](image-5.png)
 
 [Click here](https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/#considerations) to know the $group operators
@@ -225,6 +230,7 @@ db.getCollection("test").aggregate[
 ```
 
 **output**
+
 ![Alt text](image-6.png)
 
 ## $bucket, $sort, and $limit
@@ -330,6 +336,7 @@ db.getCollection("test").aggregate[
    - Projects the specified fields (`_id`, `count`, and `data`) into the final output.
 
 **output**
+
 ![Alt text](image-7.png)
 
 **another example of $bucket**
@@ -358,6 +365,7 @@ db.getCollection("artists").aggregate([
 ```
 
 **output**
+
 ![Alt text](image-8.png)
 
 ## $facet, multiple pipeline aggregation stage
@@ -398,6 +406,7 @@ db.getCollection("test").aggregate([
 ```
 
 **output**
+
 ![Alt text](image-9.png)
 
 ## embedding vs referencing
@@ -434,6 +443,7 @@ db.getCollection("practice_orders").aggregate([
 ```
 
 **output**
+
 ![Alt text](image-10.png)
 
 ## Indexing
