@@ -1,5 +1,10 @@
 # Dummy collections
 
+## Index 
+- [orders](#orders)
+- [test](#test)
+- [artists](#artists)
+- [practice_orders](#practice-orders)
 **orders**
 
 ```javascript
