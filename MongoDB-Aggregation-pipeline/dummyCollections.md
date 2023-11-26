@@ -1,11 +1,13 @@
 # Dummy collections
 
-## Index 
+## Index
+
 - [orders](#orders)
 - [test](#test)
 - [artists](#artists)
-- [practice_orders](#practice-orders)
-**orders**
+- [practice_orders](#practice_orders)
+
+## orders
 
 ```javascript
 db.orders.insertMany([
@@ -20,7 +22,7 @@ db.orders.insertMany([
 ]);
 ```
 
-**test**
+## test
 
 ```javascript
 db.test.insertMany([
@@ -2454,7 +2456,7 @@ db.test.insertMany([
 ]);
 ```
 
-**artists**
+## artists
 
 ```javascript
 db.artists.insertMany([
@@ -2469,7 +2471,7 @@ db.artists.insertMany([
 ]);
 ```
 
-**practice_orders**
+## practice_orders
 
 ```javascript
 db.practice_orders([
