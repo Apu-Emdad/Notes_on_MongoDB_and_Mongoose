@@ -16,6 +16,7 @@
 - [embedding vs referencing](#embedding-vs-referencing)
 - [$lookup for referencing](#lookup-for-referencing)
 - [Indexing](#indexing)
+- [FAQ](#faq)
 
 ## Introduction
 
@@ -475,3 +476,30 @@ db.test.createIndex({ about: "text" });
 ```javascript
 db.test.find({ $text: { $search: "dolor" } });
 ```
+
+## FAQ
+
+- **Can we read, update or delete in aggregation in Mongodb?**
+
+  _The MongoDB aggregation framework is primarily designed for data transformation and analysis, not for directly reading, updating, or deleting documents. The aggregation pipeline processes data in a series of stages, allowing you to filter, transform, and manipulate data, but it does not modify the original documents in the underlying collection._
+
+- **How to perform `$text` search in aggregation pipleine?**
+
+  _The following aggregation searches for the term `cake` in the `$match` stage and calculates the total views for the matching documents in the $group stage._
+
+  ```javascript
+  db.articles.aggregate([
+   {
+    $match: {
+     $text: { $search: "cake" },
+    },
+   },
+
+   {
+    $group: {
+     _id: null,
+     views: { $sum: "$views" },
+    },
+   },
+  ]);
+  ```
