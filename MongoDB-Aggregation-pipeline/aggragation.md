@@ -28,23 +28,36 @@ Aggregation operations process multiple documents and return computed results. Y
 
 ## Aggregation by $match
 
+**$match:** In MongoDB, $match is a pipeline stage in aggregation that filters documents based on specified criteria, similar to a query using find().
+
 ```javascript
 db.getCollection("orders").aggregate([
- { $match: { size: "medium" } },
- {
-  $group: {
-   _id: "$name",
-   totalQuantity: { $sum: "$quantity" },
+  { $match: { size: "medium" } },
+  {
+    $group: {
+      _id: "$name",
+      totalQuantity: { $sum: "$quantity" },
+    },
   },
- },
 ]);
 ```
+
+**Explanation**
+
+- **Stage 1 –** **$match**:
+  - Filters the documents to include only those where the size is "medium".
+- **Stage 2 –** **$group**:
+  - Groups the filtered documents by the name field.
+  - For each group, it calculates the totalQuantity by summing up the quantity values.
+- **Result**: A list of items (name) with the total quantity ordered for size "medium".
 
 **output**
 
 ![Alt text](image.png)
 
 ## Calculate Total Order Value and Average Order Quantity
+
+**$group:** In MongoDB, `$group` is used to group documents by a specified field and perform aggregations like sum, average, count, etc., on each group.
 
 ```javascript
 db.getCollection("orders")[
@@ -81,23 +94,44 @@ db.getCollection("orders")[
 ];
 ```
 
+**Explanation**
+
+- **Stage 1 –** `$match`:
+  - Filters orders to include only those between January 30, 2020 and January 30, 2022.
+- **Stage 2 –** `$group`:
+  - Groups the filtered documents by date (formatted as `YYYY-MM-DD`).
+  - Calculates `totalOrderValue` by multiplying `price` and `quantity` for each document and summing them.
+  - Calculates the average quantity of items ordered (`averageOrderQuantity`) for each date.
+- **Stage 3 –** `$sort`:
+  - Sorts the grouped results in descending order based on `totalOrderValue`.
+
 **output**
 
 ![Alt text](image-1.png)
 
 ## $project
 
+**$project:** In MongoDB, `$project` is used to include, exclude, or reshape fields in the output documents.
+
 ```javascript
 db.getCollection("test").aggregate([
- {
-  $match: {
-   gender: "Male",
-   age: { $gt: 20, $lt: 30 },
+  {
+    $match: {
+      gender: "Male",
+      age: { $gt: 20, $lt: 30 },
+    },
   },
- },
- { $project: { name: 1, gender: 1 } },
+  { $project: { name: 1, gender: 1 } },
 ]);
 ```
+
+**Explanation**
+
+- **Stage 1 –** `$match`:
+  - Filters documents to include only males (`gender: "Male"`) whose age is greater than 20 and less than 30.
+- **Stage 2 –** `$project`:
+  - Includes only the `name` and `gender` fields in the output.
+  - All other fields (like `age`, `_id`, etc.) are excluded by default unless explicitly included.
 
 **output**
 
@@ -105,37 +139,48 @@ db.getCollection("test").aggregate([
 
 ### $addField
 
+**$addFields:** In MongoDB, `$addFields` is used to add new fields or update existing fields in documents within the aggregation pipeline.
+
 ```javascript
 db.getCollection("test").aggregate([
- {
-  $match: {
-   gender: "Male",
-   age: { $gt: 20, $lt: 30 },
+  {
+    $match: {
+      gender: "Male",
+      age: { $gt: 20, $lt: 30 },
+    },
   },
- },
 
- {
-  $addFields: {
-   course: "level-2",
+  {
+    $addFields: {
+      course: "level-2",
+    },
   },
- },
 
- {
-  $project: {
-   name: 1,
-   gender: 1,
-   age: 1,
-   course: 1,
+  {
+    $project: {
+      name: 1,
+      gender: 1,
+      age: 1,
+      course: 1,
+    },
   },
- },
 ]);
 ```
+
+**Explanation**
+
+- **Stage 1 –** `$match`:
+  - Filters documents to include only males between ages 21 and 29.
+- **Stage 2 –** `$addFields`:
+  - Adds a new field `course` with the value `"level-2"` to each document.
+- **Stage 3 –** `$project`:
+  - Outputs only the `name`, `gender`, `age`, and `course` fields for each document.
 
 **output**
 
 ![Alt text](image-3.png)
 
-### $out and $merge
+### `$out` and `$merge`
 
 ```javascript
 /* applicable to the above code */
@@ -144,30 +189,43 @@ db.getCollection("test").aggregate([
 
 ```
 
-## $group, $sum, $push
+## `$group`, `$sum`, `$push`
+
+**$sum:** In MongoDB, `$sum`calculates the total of numeric values or counts documents when used with a constant like`1`.
+
+**$push:** In MongoDB, `$push` adds values to an array, collecting data from multiple documents into a single array field in the group.
 
 ```javascript
 db.getCollection("test").aggregate([
- [
-  /*stagge -1  */
-  {
-   $group: {
-    _id: "$address.country", //to address a field use $field_name
-    count: { $sum: 1 }, // returns number of the matched elements based on the _id
-    // name: {$push : ("$name")}, // returns name: {name field of the collection}
-    fullDoc: { $push: "$$ROOT" }, //$$root sends all the matching data into an array
-   },
-  },
-  /*stage-2  */
-  {
-   $project: {
-    "fullDoc.name": 1,
-    "fullDoc.email": 1,
-   },
-  },
- ],
+  [
+    /*stagge -1  */
+    {
+      $group: {
+        _id: "$address.country", //to address a field use $field_name
+        count: { $sum: 1 }, // returns number of the matched elements based on the _id
+        // name: {$push : ("$name")}, // returns name: {name field of the collection}
+        fullDoc: { $push: "$$ROOT" }, //$$root sends all the matching data into an array
+      },
+    },
+    /*stage-2  */
+    {
+      $project: {
+        "fullDoc.name": 1,
+        "fullDoc.email": 1,
+      },
+    },
+  ],
 ]);
 ```
+
+**Explanation**
+
+- **Stage 1 –** `$group`:
+  - Groups documents by the value of `address.country`.
+  - `count` sums 1 for each document in the group to count total documents per country.
+  - `fullDoc` collects entire matching documents into an array using `$push` and `$$ROOT`.
+- **Stage 2 –** `$project`:
+  - Displays only the `name` and `email` fields from each document inside the `fullDoc` array.
 
 **output**
 
@@ -175,7 +233,15 @@ db.getCollection("test").aggregate([
 
 [Click here](https://www.mongodb.com/docs/manual/reference/operator/aggregation/group/#considerations) to know the $group operators
 
-## Accumulator(group) operator $max, $min, $avg
+## Accumulator(group) operator `$max`, `$min`, `$avg`
+
+**Accumulator Operator:** In MongoDB, accumulator operators are used within the `$group` stage to perform calculations like sum, average, min, max, etc., on grouped data.
+
+**$max:** In MongoDB, `$max` returns the highest value from a group of documents.
+
+**$min:** In MongoDB, `$min` returns the lowest value from a group of documents.
+
+**$avg:** In MongoDB, `$avg` calculates the average (mean) value from a group of documents.
 
 ```javascript
 db.getCollection("test").aggregate[
@@ -208,7 +274,21 @@ db.getCollection("test").aggregate[
 ]
 ```
 
+**Explanation**
+
+- **Stage 1 –** `$group`:
+  - Groups all documents together using `_id: null`.
+  - Calculates `totalSalary` by summing all `salary` values.
+  - Finds the maximum salary using `$max`.
+  - Finds the minimum salary using `$min`.
+  - Calculates the average salary using `$avg`.
+- **Stage 2 –** `$addFields`:
+  - Adds `avgRounded` by rounding the average salary to 2 decimal places.
+  - Adds `diff`, which is the difference between the maximum and minimum salaries.
+
 ## $unwind
+
+**$unwind:** In MongoDB, `$unwind` deconstructs an array field from the input documents to output a document for each element.
 
 ```javascript
 db.getCollection("test").aggregate[
@@ -228,11 +308,26 @@ db.getCollection("test").aggregate[
 ]
 ```
 
+**Explanation**
+
+- **Stage 1 –** `$unwind`:
+  - Breaks each document's `friends` array into multiple documents, one for each friend.
+- **Stage 2 –** `$group`:
+  - Groups documents by each friend (now a single value due to `$unwind`).
+  - Counts how many times each friend appears.
+  - Collects all corresponding `name` values into an array.
+
 **output**
 
 ![Alt text](image-6.png)
 
-## $bucket, $sort, and $limit
+## `$bucket`, `$sort`, and `$limit`
+
+**$bucket:** In MongoDB, `$bucket` groups documents into buckets (ranges) based on a specified field.
+
+**$sort:** In MongoDB, `$sort` arranges the documents in ascending or descending order based on field values.
+
+**$limit:** In MongoDB, `$limit` restricts the number of documents passed to the next stage.
 
 ```javascript
 db.getCollection("test").aggregate[
@@ -332,6 +427,7 @@ db.getCollection("test").aggregate[
    - Limits the number of documents in the output to 2.
 
 7. **`$project` Stage:**
+
    - Projects the specified fields (`_id`, `count`, and `data`) into the final output.
 
 **output**
@@ -342,26 +438,49 @@ db.getCollection("test").aggregate[
 
 ```javascript
 db.getCollection("artists").aggregate([
- {
-  $bucket: {
-   groupBy: "$year_born",
-   boundaries: [1840, 1850, 1860, 1870, 1880],
-   default: "other",
-   output: {
-    count: { $sum: 1 },
-    artists: {
-     $push: {
-      name: {
-       $concat: ["$first_name", " ", "$last_name"],
+  {
+    $bucket: {
+      groupBy: "$year_born",
+      boundaries: [1840, 1850, 1860, 1870, 1880],
+      default: "other",
+      output: {
+        count: { $sum: 1 },
+        artists: {
+          $push: {
+            name: {
+              $concat: ["$first_name", " ", "$last_name"],
+            },
+            year_born: "$year_born",
+          },
+        },
       },
-      year_born: "$year_born",
-     },
     },
-   },
   },
- },
 ]);
 ```
+
+**Explanation**
+
+- **Stage 1 –** `$bucket`:
+  - Groups documents based on the `age` field into defined ranges: `[0–20)`, `[20–40)`, `[40–60)`, `[60–80)`.
+  - Documents with `age >= 80` are grouped into a bucket labeled `"over 80"`.
+  - For each bucket:
+    - `data`: pushes simplified objects containing only `name` and `age`.
+    - `count`: tracks the number of documents in each bucket.
+- **Stage 2 –** `$unwind`:
+  - Flattens the `data` array in each bucket, creating a separate document for each item in the array.
+- **Stage 3 –** `$sort`:
+  - Sorts the unwound `data` documents by `data.age` in ascending order.
+- **Stage 4 –** `$group`:
+  - Re-groups the documents by the original bucket `_id`.
+  - Retains the original `count` using `$first`.
+  - Pushes the sorted `data` entries back into an array.
+- **Stage 5 –** `$sort`:
+  - Sorts the grouped buckets by `_id` in ascending order.
+- **Stage 6 –** `$limit`:
+  - Restricts the output to only the first 2 buckets.
+- **Stage 7 –** `$project`:
+  - Selects only `_id`, `count`, and `data` fields for final output.
 
 **output**
 
@@ -369,40 +488,52 @@ db.getCollection("artists").aggregate([
 
 ## $facet, multiple pipeline aggregation stage
 
-`$facet` enables multiple pipelines on same data at once.
+**$facet:** In MongoDB, `$facet` enables running multiple aggregation pipelines in parallel on the same input data.
 
 ```javascript
 db.getCollection("test").aggregate([
- {
-  $facet: {
-   /*pipeline -1  */
-   friendsCount: [
-    //stage-1
-    { $unwind: "$friends" },
-    //stage-2
-    {
-     $group: {
-      _id: "$friends",
-      count: { $sum: 1 },
-     },
+  {
+    $facet: {
+      /*pipeline -1  */
+      friendsCount: [
+        //stage-1
+        { $unwind: "$friends" },
+        //stage-2
+        {
+          $group: {
+            _id: "$friends",
+            count: { $sum: 1 },
+          },
+        },
+      ],
+      /*pipeline -2  */
+      educationCount: [
+        // stage -1
+        { $unwind: "$education" },
+        // stage-2
+        {
+          $group: {
+            _id: "$education.degree",
+            count: { $sum: 1 },
+          },
+        },
+      ],
     },
-   ],
-   /*pipeline -2  */
-   educationCount: [
-    // stage -1
-    { $unwind: "$education" },
-    // stage-2
-    {
-     $group: {
-      _id: "$education.degree",
-      count: { $sum: 1 },
-     },
-    },
-   ],
   },
- },
 ]);
 ```
+
+**Explanation**
+
+- **Stage 1 –** `$facet`:
+  - Runs two independent pipelines on the same dataset:
+    - **Pipeline 1 – `friendsCount`** :
+      - `$unwind`: Flattens the `friends` array to work with individual friend entries.
+      - `$group`: Groups by each unique friend and counts how often each appears.
+    - **Pipeline 2 – `educationCount`** :
+      - `$unwind`: Flattens the `education` array.
+      - `$group`: Groups by `education.degree` and counts how many times each degree occurs.
+- **Result** : Returns an object with two arrays: `friendsCount` and `educationCount`, each containing the grouped and counted results from their respective pipelines.
 
 **output**
 
@@ -428,18 +559,27 @@ db.getCollection("test").aggregate([
 
 ## $lookup for referencing
 
+**$lookup:** In MongoDB, `$lookup` performs a left outer join to combine documents from two collections based on matching field values.
+
 ```javascript
 db.getCollection("practice_orders").aggregate([
- {
-  $lookup: {
-   from: "test",
-   localField: "userId",
-   foreignField: "_id",
-   as: "user",
+  {
+    $lookup: {
+      from: "test",
+      localField: "userId",
+      foreignField: "_id",
+      as: "user",
+    },
   },
- },
 ]);
 ```
+
+**Explanation**
+
+- **Stage 1 –** `$lookup`:
+  - Joins documents from the `"practice_orders"` collection with documents from the `"test"` collection.
+  - Matches `"userId"` in `"practice_orders"` with `"_id"` in `"test"`.
+  - Adds a new array field `"user"` to each `"practice_orders"` document containing matched `"test"` documents.
 
 **output**
 
@@ -447,35 +587,45 @@ db.getCollection("practice_orders").aggregate([
 
 ## Indexing
 
-**Create Index**
+**Create Index:**
 
 ```javascript
 db.test.createIndex({ gender: 1 });
 ```
 
-**Drop Index**
+Creates an ascending index on the `gender` field to speed up queries involving `gender`
+
+**Drop Index:**
 
 ```javascript
 db.test.createIndex.dropIndex({ email: 1 });
 ```
 
-**Compound Index**
+Removes the existing index on the `email` field.\*_Drop Index_
+
+**Compound Index:**
 
 ```javascript
 db.test.createIndex({ gender: 1, age: -1 });
 ```
 
-**Text Index**
+Creates a multi-field index on `gender` (ascending) and `age` (descending) to optimize queries filtering/sorting on both fields.\*_Compound Index_
+
+**Text Index:**
 
 ```javascript
 db.test.createIndex({ about: "text" });
 ```
 
-**find through text index**
+Creates a text index on the `about` field to enable full-text search.\*_Text Index_
+
+**Find through Text Index:**
 
 ```javascript
 db.test.find({ $text: { $search: "dolor" } });
 ```
+
+Searches for the word `"dolor"` in fields covered by a text index.\*_find through text index_
 
 ## FAQ
 
@@ -489,17 +639,17 @@ db.test.find({ $text: { $search: "dolor" } });
 
   ```javascript
   db.articles.aggregate([
-   {
-    $match: {
-     $text: { $search: "cake" },
+    {
+      $match: {
+        $text: { $search: "cake" },
+      },
     },
-   },
 
-   {
-    $group: {
-     _id: null,
-     views: { $sum: "$views" },
+    {
+      $group: {
+        _id: null,
+        views: { $sum: "$views" },
+      },
     },
-   },
   ]);
   ```
